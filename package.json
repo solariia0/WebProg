@@ -1,0 +1,15 @@
+{
+  "name": "up2245047",
+  "version": "1.0.0",
+  "description": "\"UP2245047 - WebProg\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "up2245047",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

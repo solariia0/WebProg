@@ -1,0 +1,36 @@
+#timer {
+    font-size: 4rem;
+}
+
+body {
+    text-align: center;
+}
+
+
+button {
+    border-style: none;
+    padding: .7rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
+    border-radius: 5%;
+}
+
+#startBttn {
+    background-color: rgb(73, 191, 136);
+}
+
+.racerID {
+    background-color: rgb(200, 209, 225);
+    padding: .5rem;
+    font-style: italic;
+    text-align: center;
+    color: rgb(104, 104, 121);
+}
+
+#uploadBttn {
+    display: none;
+}
+
+li::marker {
+    text-align: center;
+}

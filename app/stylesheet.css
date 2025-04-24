@@ -6,7 +6,6 @@ body {
     text-align: center;
 }
 
-
 button {
     border-style: none;
     padding: .7rem;
@@ -17,14 +16,6 @@ button {
 
 #startBttn {
     background-color: rgb(73, 191, 136);
-}
-
-.racerID {
-    background-color: rgb(200, 209, 225);
-    padding: .5rem;
-    font-style: italic;
-    text-align: center;
-    color: rgb(104, 104, 121);
 }
 
 #uploadBttn {

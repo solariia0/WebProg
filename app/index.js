@@ -1,5 +1,5 @@
 const timer = document.getElementById('timer');
-const timerBttn = document.getElementById('startBttn');
+const timerBttn = document.getElementById('timerBttn');
 const recordBttn = document.getElementById('recordBttn');
 const runnerList = document.getElementById('runners');
 const uploadBttn = document.getElementById('uploadBttn');
@@ -30,10 +30,11 @@ function stopwatch() {
         timerBttn.textContent = 'start';
         timer.textContent = '00 : 00 :00 : 00';
 
-        uploadBttn.style.display = 'inline';
-
         clearInterval(intervalID);
         intervalID = null;
+
+        uploadBttn.style.display = 'inline';
+        timerBttn.setAttribute('disabled', true);
     }
 }
 timerBttn.addEventListener('click', stopwatch);
@@ -55,14 +56,19 @@ function recordRunner() {
 }
 recordBttn.addEventListener('click', recordRunner);
 
+// upload once per race
 async function uploadRace() {
-    const runners = document.querySelectorAll('runner');
-    console.log(document.querySelectorAll('runner'))
-    for (const runner of runners) {
-        console.log(runner);
+    const runnerTimes = document.querySelectorAll('#runner p');
+    const runnerIDs = document.querySelectorAll('#runner input');
+    let output = '';
+    
+    for (let i = 0; i < runnerIDs.length; i++) {
+        output = `{"id": "${runnerIDs[i].value}"`;
+        output += `, "time": "${runnerTimes[i].textContent.slice(6)}"}`;
+        output = JSON.parse(output);
+        results.push(output);
     }
 
-    /*
     try {
         const response = await fetch('/results', {
             method: 'POST',
@@ -73,10 +79,16 @@ async function uploadRace() {
         });
         const data = await response.json();
         console.log("Result uploaded successfully:", data);
+
+        timerBttn.removeAttribute('disabled');
+        uploadBttn.style.display = 'none';
+        const uploadMsg = document.createElement('p');
+        uploadMsg.textContent = 'Race Uploaded!';
+        document.body.append(uploadMsg);
+
     } catch (error) {
         console.error("Error uploading result:", error);
         alert("Error uploading result.");
     }
-        */  
 }
 uploadBttn.addEventListener('click', uploadRace)

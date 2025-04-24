@@ -15,5 +15,6 @@
   "devDependencies": {
     "eslint": "^8.57.1",
     "eslint-config-portsoc": "^1.0.1"
-  }
+  },
+  "type": "module"
 }

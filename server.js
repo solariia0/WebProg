@@ -9,15 +9,21 @@ const port = 8080;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const resultsPath = path.join(__dirname, '/results');
+const resultsPath = path.join(__dirname, '/app/results.json');
 
 //app.use(express.static(path.join(__dirname, 'client')));
 app.use(express.static('app'));
 app.use(express.json());
 
+function uploadRace(req, res) {
+  const results = req.body
+  fs.writeFileSync(resultsPath, JSON.stringify(results, null, 2));
+  res.json(results);
+  }
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'client', 'index.html'));
   });
-app.post('/results', resultsPath);
+app.post('/results', uploadRace);
 
 app.listen(port)

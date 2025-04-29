@@ -1,19 +1,14 @@
 import express from 'express';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import * as url from 'url';
 import fs from 'fs';
 
 const app = express();
 const port = 8080;
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const resultsPath = path.join(__dirname, '/app/results.json');
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
+const resultsPath = `${__dirname}/client/results.json`;
 
-//app.use(express.static(path.join(__dirname, 'client')));
-app.use(express.static('app'));
-app.use(express.json());
+app.use(express.static('client', { extensions: ['html, json'] }));
 
 function uploadRace(req, res) {
   const results = req.body
@@ -21,9 +16,8 @@ function uploadRace(req, res) {
   res.json(results);
   }
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client', 'index.html'));
-  });
-app.post('/results', uploadRace);
+app.get('/');
+app.put('/results', express.json(), uploadRace);
 
-app.listen(port)
+app.listen(port);
+console.log(`Listening on ${port}`);

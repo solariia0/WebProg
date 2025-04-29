@@ -22,6 +22,14 @@ button {
     display: none;
 }
 
+#uploadMssg {
+    display: none;
+}
+
 li::marker {
     text-align: center;
+}
+
+.uploaded {
+    color: aquamarine;
 }

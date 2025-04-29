@@ -2,20 +2,18 @@
 - [X] Start a race timer
 - [X] Record the finish time of each runner in that race
 - [X] Submit results to a server
-- [ ] Clear race results from their device after the race
-*how is data stored server-side versus on user device if it's just a file?*
+- [X] Clear race results from their device after the race
 
 # The mobile app must be able to:
-- [ ] Record race results on a phone that is in "airplane mode" - i.e. offline
-*how to check if a phone is in offline mode to turn off live server uploads*
-- [ ] Store data from one race at a time.
-- [ ] Provide timing for races up to 24 hours in length
+- [X] Record race results on a phone that is in "airplane mode" - i.e. offline
+- [X] Store data from one race at a time.
+- [X] Provide timing for races up to 24 hours in length
 - [ ] Upload race results to a server (either live during the race and/or as a batch upload afterwards if data is recorded in "airplane mode")
 
 # The server should:
 - [X] Receive data from users
-- [ ] Display race results
-- [ ] Provide timely results (as data is uploaded or immediately after, so runners can see their official positions and - [ ] times before they go home).
+- [X] Display race results
+- [X] Provide timely results (as data is uploaded or immediately after, so runners can see their official positions and times before they go home).
 
 # Extra:
  - [ ] Exporting results to a spreadsheet, possibly using Comma Separated Variable (CSV) format.

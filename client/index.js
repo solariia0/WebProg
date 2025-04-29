@@ -3,26 +3,41 @@ const timerBttn = document.getElementById('timerBttn');
 const recordBttn = document.getElementById('recordBttn');
 const runnerList = document.getElementById('runners');
 const uploadBttn = document.getElementById('uploadBttn');
+const uploadMssg = document.querySelector('#uploadMssg');
 
 let results = [];
 let intervalID;
 
-// don't allow a race to be run if it hasn't been uploaded
+function formatTime(time) {
+    if (time < 10) {
+        time = `0${time}`;
+    }
+    return time;
+}
+
+
 function stopwatch() {
     let time = 0;
 
     if (timerBttn.textContent === 'start') {
         timerBttn.textContent = 'stop'
-        // is there a better way to do this?
         timerBttn.style.backgroundColor = 'rgb(232, 75, 99)';
+        uploadMssg.style.display = 'none';
+        localStorage.clear();
 
-        // automatically stop the timer when 24hrs hits
         intervalID = setInterval(() => {
             time = time + 1;
-            sec = Math.round((time / 10) % 60);
-            min = Math.floor((time / 10) / 60);
-            hour = Math.floor((time / 10) / 120);
-            timer.textContent = `${hour} : ${min} : ${sec} : ${time % 60}`;
+            sec = formatTime(Math.round((time / 10) % 60));
+            min = formatTime(Math.floor((time / 10) / 60));
+            hour = formatTime(Math.floor((time / 10) / 120));
+            if (hour == 24) { // Q: how can we test this cause uhhh idk
+                const raceAlert = document.createAttribute('p');
+                raceAlert.textContent = 'Race Over';
+                document.body.append(raceAlert);
+                uploadRace();
+            } else {
+                timer.textContent = `${hour} : ${min} : ${sec} : ${formatTime(time % 60)}`;
+            }
         }, 100);
     }
     else {
@@ -40,7 +55,7 @@ function stopwatch() {
 timerBttn.addEventListener('click', stopwatch);
 
 
-function recordRunner() {
+async function recordRunner() {
     if (intervalID != null) { // Only allows laps to be recorded if a timer is running
         const runner = document.createElement('li');
         runner.id = 'runner';
@@ -52,6 +67,21 @@ function recordRunner() {
         runnerTime.style.display = 'inline';
         runnerList.append(runner);
         runner.append(idEntryBox, runnerTime);
+
+        try {
+            const response = await fetch('/results', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: `{"id": "${idEntryBox.value}", "time": "${timer.textContent}"},\\n`
+            });
+            const data = await response.json();
+            console.log("Result uploaded successfully:", data);    
+        } catch (error) {
+            console.error("Error uploading result:", error);
+            alert("Error uploading result.");
+        }
     }
 }
 recordBttn.addEventListener('click', recordRunner);
@@ -63,6 +93,9 @@ async function uploadRace() {
     let output = '';
     
     for (let i = 0; i < runnerIDs.length; i++) {
+        // uploading to localstorage
+        localStorage.setItem(`${runnerIDs[i].value}`, `${runnerTimes[i].textContent.slice(6)}`);
+
         output = `{"id": "${runnerIDs[i].value}"`;
         output += `, "time": "${runnerTimes[i].textContent.slice(6)}"}`;
         output = JSON.parse(output);
@@ -71,7 +104,7 @@ async function uploadRace() {
 
     try {
         const response = await fetch('/results', {
-            method: 'POST',
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -80,11 +113,16 @@ async function uploadRace() {
         const data = await response.json();
         console.log("Result uploaded successfully:", data);
 
+        // disabling start button
         timerBttn.removeAttribute('disabled');
         uploadBttn.style.display = 'none';
-        const uploadMsg = document.createElement('p');
-        uploadMsg.textContent = 'Race Uploaded!';
-        document.body.append(uploadMsg);
+        uploadMssg.style.display = 'inline';
+
+        const resultsList = document.querySelectorAll('#runner');
+        for (const item of resultsList) {
+            item.remove();
+        }
+        results = [];
 
     } catch (error) {
         console.error("Error uploading result:", error);

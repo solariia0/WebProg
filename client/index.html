@@ -1,21 +1,20 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <link href="stylesheet.css" rel="stylesheet" />
-        <script defer src="./index.js"></script>
-        
-    </head>
+<!doctype html>
+<script defer src="./index.js"></script>
+<link rel="stylesheet" href="./stylesheet.css">
+<title>UP2245047</title>
 
-    <body>
-        <p id="timer">00 : 00 :00 : 00</p>
+<main>
 
-        <button id="timerBttn">start</button>
-        <button id="recordBttn">record</button>
+</main>
 
-        <ol id="runners">
-        </ol>
+<template id="tmp-screen">
+    <section class="screen hidden">
+        <h2 class="title">Title</h2>
+    </section>
+</template>
 
-        <button id="uploadBttn">upload</button>
-        <p id="uploadMssg">Race Uploaded!</p>
-    </body>
-</html>
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js');
+    }
+</script>

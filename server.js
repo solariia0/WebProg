@@ -14,10 +14,17 @@ function uploadRace(req, res) {
   const results = req.body
   fs.writeFileSync(resultsPath, JSON.stringify(results, null, 2));
   res.json(results);
-  }
+}
 
-app.get('/');
+// figure out how to route properly lol
+function handleAppUrls(req, res) {
+    res.sendFile(`${__dirname}/client/index.html`);
+}
+app.get('/app/*subpages', handleAppUrls)
+
+
 app.put('/results', express.json(), uploadRace);
+
 
 app.listen(port);
 console.log(`Listening on ${port}`);

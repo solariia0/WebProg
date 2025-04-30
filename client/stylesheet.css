@@ -1,3 +1,7 @@
+.hidden {
+    display: none;
+}
+
 #timer {
     font-size: 4rem;
 }

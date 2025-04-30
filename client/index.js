@@ -1,9 +1,134 @@
-const timer = document.getElementById('timer');
+const pages = [
+    {
+        screen: 'homepage',
+        title: 'Home'
+    },
+    {
+        screen: 'stopwatch',
+        title: 'Timing a race'
+    },
+    {
+        screen: 'live-tracking',
+        title: 'Tracking'
+    },
+    {
+        screen: 'error',
+        title: 'Error'
+    }
+];
+
+const ui = {};
+const templates = {};
+
+function getUIElem() {
+    ui.main = document.querySelector('main');
+    ui.screens = {};
+
+    ui.getScreens = () => Object.values(ui.screens);
+
+    templates.screen = document.querySelector('#tmp-screen');
+  }
+
+function makeScreens() {
+const template = templates.screen;
+for (const page of pages) {
+    const section = template.content.cloneNode(true).firstElementChild;
+
+    // set the title of the section, with the first letter capitalised
+    const title = section.querySelector('.title');
+    title.textContent = page.title;
+
+    // need a refresher on what dataset is
+    section.dataset.id = `sect-${page.screen}`;
+    section.dataset.name = page.screen;
+
+    ui.main.append(section);
+    ui.screens[page.screen] = section;
+}
+}
+
+function setupHomepage() {
+    const homeBttns = ui.screens['homepage'].querySelectorAll('button');
+    for (const button of homeBttns) {
+        button.addEventListener('click', show);
+        button.addEventListener('click', storeState); 
+    }
+    
+}
+
+async function fetchScreenContent(screen) {
+    const url = `/screens/${screen}.inc`;
+    const response = await fetch(url);
+    if (response.ok) {
+        return await response.text();
+    } else {
+        return `sorry, a ${response.status} error ocurred retrieving section data for: <code>${url}</code>`;
+    }
+}
+
+async function putScreenContent() {
+for (const page of pages) {
+    const content = await fetchScreenContent(page.screen);
+    const section = document.createElement('section');
+    section.innerHTML = content;
+    ui.screens[page.screen].append(section);
+}
+}
+
+// might affect homepage check
+function hideAllScreens() {
+    for (const screen of ui.getScreens()) {
+        hideElement(screen);
+    }
+}
+
+// erm what the freak
+function show(event) {
+    // ui.previous is used after one of the buttons on the login screen
+    // is pressed to return the user to where they were.
+    ui.previous = ui.current;
+    const screen = event?.target?.dataset?.screen ?? 'home';
+    showScreen(screen);
+}
+
+function showScreen(name) {
+    hideAllScreens();
+    if (!ui.screens[name]) {
+        name = 'error';
+    }
+    showElement(ui.screens[name]);
+
+    ui.current = name;
+    document.title = name;
+}
+
+// can't I just put an empty string in the second param since it's unused? what's the point of putting ui.current again
+function storeState() {
+    history.pushState(ui.current, ui.current, `/app/${ui.current}`);
+}
+
+function showElement(e) {
+    e.classList.remove('hidden');
+}
+
+function hideElement(e) {
+    e.classList.add('hidden');
+}
+
+
+// that was all the ui stuff uhm code! thanks matt and rich <3
+
+// how badly designed is the structure of the functions lol
+// should it just be put in a separte js file and called when need be?
+function raceTiming() {
+
+const timer = document.getElementById('stopwatch');
 const timerBttn = document.getElementById('timerBttn');
 const recordBttn = document.getElementById('recordBttn');
 const runnerList = document.getElementById('runners');
 const uploadBttn = document.getElementById('uploadBttn');
 const uploadMssg = document.querySelector('#uploadMssg');
+
 
 let results = [];
 let intervalID;
@@ -54,7 +179,6 @@ function stopwatch() {
 }
 timerBttn.addEventListener('click', stopwatch);
 
-
 async function recordRunner() {
     if (intervalID != null) { // Only allows laps to be recorded if a timer is running
         const runner = document.createElement('li');
@@ -74,19 +198,24 @@ async function recordRunner() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: `{"id": "${idEntryBox.value}", "time": "${timer.textContent}"},\\n`
+                body: `{"id": "${idEntryBox.value}", "time": "${timer.textContent}"}`
             });
             const data = await response.json();
-            console.log("Result uploaded successfully:", data);    
+            console.log("Result uploaded successfully:", data);  
+            
+            runnerTime.style.color = 'blue';
         } catch (error) {
             console.error("Error uploading result:", error);
-            alert("Error uploading result.");
+            runnerTime.style.color = 'red';
+            errorMsg = document.createElement('p');
+            errorMsg.textContent = 'failed to upload to server';
+            document.body.append(errorMsg);
         }
     }
 }
 recordBttn.addEventListener('click', recordRunner);
 
-// upload once per race
+// make it so it only uploads once per race
 async function uploadRace() {
     const runnerTimes = document.querySelectorAll('#runner p');
     const runnerIDs = document.querySelectorAll('#runner input');
@@ -129,4 +258,34 @@ async function uploadRace() {
         alert("Error uploading result.");
     }
 }
-uploadBttn.addEventListener('click', uploadRace)
+uploadBttn.addEventListener('click', uploadRace);
+}
+
+// erm I want to use this as a template for fetching results from races based on ID
+// it currently does *not* do that
+async function getUserData(userid) {
+    const response = await fetch(`/user/${userid}`);
+    if (response.ok) {
+        return await response.json();
+    } else {
+        return false;
+    }
+}
+
+function loadInitialScreen() {
+    ui.current = 'home'
+    showScreen(ui.current);
+  }
+
+async function main() {
+    getUIElem();
+    makeScreens();
+    await putScreenContent();
+    setupHomepage();
+    raceTiming();
+    window.addEventListener('popstate', showScreen('homepage'));
+    ui.current = 'homepage';
+    showScreen(ui.current);
+}
+
+main();

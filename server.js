@@ -1,6 +1,7 @@
 import express from 'express';
 import * as url from 'url';
 import fs from 'fs';
+import * as db from './client/db.js'
 
 const app = express();
 const port = 8080;
@@ -22,8 +23,21 @@ function handleAppUrls(req, res) {
 }
 app.get('/app/*subpages', handleAppUrls)
 
-
+function bullkPostResults(req, res) {
+  const results = db.bulkAddResults(req.body);
+  res.json(results);
+}
+async function getRace(req, res) {
+  const result = await db.findMessage(req.params.id);
+  if (result) {
+    res.json(result);
+  } else {
+    res.status(404).send('No match for that ID.');
+  }
+}
 app.put('/results', express.json(), uploadRace);
+app.put('/results2', express.json(), getRace);
+app.put('/results/bulk', express.json(), bullkPostResults);
 
 
 app.listen(port);

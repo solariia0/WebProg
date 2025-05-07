@@ -1,3 +1,4 @@
+//
 const pages = [
     {
         screen: 'homepage',
@@ -10,6 +11,10 @@ const pages = [
     {
         screen: 'live-tracking',
         title: 'Tracking'
+    },
+    {
+        screen: 'view-results',
+        title: 'Results'
     },
     {
         screen: 'error',
@@ -128,10 +133,19 @@ const recordBttn = document.getElementById('recordBttn');
 const runnerList = document.getElementById('runners');
 const uploadBttn = document.getElementById('uploadBttn');
 const uploadMssg = document.querySelector('#uploadMssg');
+const raceID = document.querySelector('#raceID');
+const confirmRaceID = document.querySelector('#confirm');
 
 
 let results = [];
 let intervalID;
+
+function makeRace() { // make sure you can't upload a race without saving a race id
+    results.push({race_id: raceID.value});
+    raceID.setAttribute('disabled', true);
+    console.log(`saved raceID: ${raceID.value}`);
+}
+confirmRaceID.addEventListener('click', makeRace)
 
 function formatTime(time) {
     if (time < 10) {
@@ -216,6 +230,7 @@ async function recordRunner() {
 recordBttn.addEventListener('click', recordRunner);
 
 // make it so it only uploads once per race
+// upload results that fail to upload to the server to localstorage to be uploaded later
 async function uploadRace() {
     const runnerTimes = document.querySelectorAll('#runner p');
     const runnerIDs = document.querySelectorAll('#runner input');
@@ -257,13 +272,45 @@ async function uploadRace() {
         console.error("Error uploading result:", error);
         alert("Error uploading result.");
     }
+
+    try {
+        const response = await fetch('/results/bulk', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(results)
+        });
+        const data = await response.json();
+        console.log("Result uploaded successfully:", data);
+    } catch (error) {
+        console.error("Error uploading result:", error);
+    }
 }
 uploadBttn.addEventListener('click', uploadRace);
 }
 
 // erm I want to use this as a template for fetching results from races based on ID
 // it currently does *not* do that
-async function getUserData(userid) {
+async function viewRaceResults () {
+    const raceResults = document.querySelector('#results');
+
+    const response = await fetch('messages');
+    let results;
+    if (response.ok) {
+      messages = await response.json();
+    } else {
+      messages = [{ msg: 'failed to load messages :-(' }];
+    }
+
+    for (const result of results) {
+        const resultElem = document.createElement('li');
+        resultElem.textContent = message;
+        raceResults.append(result);
+    }
+}
+
+async function getRaceResults(id) {
     const response = await fetch(`/user/${userid}`);
     if (response.ok) {
         return await response.json();
@@ -283,6 +330,7 @@ async function main() {
     await putScreenContent();
     setupHomepage();
     raceTiming();
+    viewRaceResults();
     window.addEventListener('popstate', showScreen('homepage'));
     ui.current = 'homepage';
     showScreen(ui.current);

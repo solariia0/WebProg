@@ -1,20 +1,28 @@
-<!doctype html>
+<!DOCTYPE html>
 <script defer src="./index.js"></script>
-<link rel="stylesheet" href="./stylesheet.css">
+<link rel="stylesheet" href="./style.css">
 <title>UP2245047</title>
 
 <main>
+    <input id="searchbox" placeholder="enter race ID"></input>
+    <button id="filter">sort by..</button>
 
+    <ol id="races">
+
+    </ol>
+
+    <nav>
+        <a href="/index.html"><button id="homepage" class="nav_bttn">home</button></a>
+        <a href="/setup-race.html"><button id="create_race" class="nav_bttn">create race</button></a>
+        <a href="/start-race.html"><button id="create_race" class="nav_bttn">start race</button></a>       
+        <a href="/client/record-checkpoint.html"><button id="record_checkpoint" class="nav_bttn">record checkpoint</button></a>
+    </nav>
+
+    <template id="race-preview">
+        <section>
+            <h2>Race ID:</h2>
+            <p>Start date: | Start time:</p>
+            <p>Location:</p>
+        </section>
+    </template>
 </main>
-
-<template id="tmp-screen">
-    <section class="screen hidden">
-        <h2 class="title">Title</h2>
-    </section>
-</template>
-
-<script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./service-worker.js');
-    }
-</script>

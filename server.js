@@ -11,34 +11,34 @@ const resultsPath = `${__dirname}/client/results.json`;
 
 app.use(express.static('client', { extensions: ['html, json'] }));
 
-function uploadRace(req, res) {
-  const results = req.body
-  fs.writeFileSync(resultsPath, JSON.stringify(results, null, 2));
-  res.json(results);
-}
-
-// figure out how to route properly lol
-function handleAppUrls(req, res) {
-    res.sendFile(`${__dirname}/client/index.html`);
-}
-app.get('/app/*subpages', handleAppUrls)
-
-function bullkPostResults(req, res) {
-  const results = db.bulkAddResults(req.body);
-  res.json(results);
-}
-async function getRace(req, res) {
-  const result = await db.findMessage(req.params.id);
-  if (result) {
-    res.json(result);
-  } else {
-    res.status(404).send('No match for that ID.');
+app.get('/races', express.json(), async (req, res) => {
+  try {
+    res.json(await db.getAllRaces());
   }
-}
-app.put('/results', express.json(), uploadRace);
-app.put('/results2', express.json(), getRace);
-app.put('/results/bulk', express.json(), bullkPostResults);
-
+  catch {
+    console.log(`error fetching races: ${error}`);
+  }
+});
+/*
+app.get('/setup-race', (req, res) => {
+  res.sendFile(`${__dirname}/client/setup-race.html`);
+});
+app.get('/88', async (req, res) => {res.send(await db.findRace('88'))});
+app.get('/record-race', (req, res) => {
+  res.sendFile(`${__dirname}/client/record-race.html`);
+});
+app.get('/:raceid/start-race', (req, res) => {
+  res.sendFile(`${__dirname}/client/start-race.html`);
+});
+app.post('/create-race', express.json(), (req, res) => {
+  try {
+    db.createRace(req.body);
+    res.status(200).send({'message': 'succes'});
+  }
+  catch (error) {
+    res.status(500).send(error);
+  }
+});*/
 
 app.listen(port);
 console.log(`Listening on ${port}`);

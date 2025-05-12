@@ -1,0 +1,70 @@
+main {
+    display: grid;
+    height: 5vw;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+
+    grid-template-areas: "search search search"
+                        "blank blank filter"
+                        "race race race"
+                        "nav nav nav";
+}
+
+#searchbox {
+    grid-area: search;
+    height: 10vw;
+}
+
+#filter {
+    grid-area: filter;
+    height: 5vw;
+}
+
+nav {
+    grid-area: nav;
+}
+
+.nav_bttn {
+    width: 15vw;
+    height: 15vw;
+    margin-right: 5em;
+}
+
+ol {
+    grid-area: race / span 3;
+}
+
+ol > section {
+    border: 3px;
+    border-radius: 1em;
+    border-style: solid;
+    margin: 1em;
+    padding: 2em;
+    background-color: rgb(147, 171, 199);
+}
+
+.race_creation {
+    display: grid;
+    grid-template-columns: repeat(1fr, 2);
+    grid-template-rows: repeat(1fr, 4);
+
+    height: 15vh;
+}
+
+input button {
+    grid-row: 2;
+    height: 5vh;
+}
+
+input date {
+    grid-row: 2;
+    grid-column: 1;
+}
+
+input time {
+    width: 5vw;
+}
+
+input {
+    border-radius: 1em;
+}

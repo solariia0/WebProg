@@ -1,0 +1,9 @@
+1. make a raceid that is uploaded to the db
+2. following a link record/raceid marshalls can record times
+    2.1 each time it tries to upload a runner to db, if it fails it gets stored in local storage
+3. after  a race is over and uploaded get sent to a page to view all the results
+    3.2 the race results can be downloaded as a json file
+
+1. all ongoing races are listed and tapping leads to watch results as the are uploaded
+
+1. searching the raceid causes the same thingy above to show up and tapping it shows final results after upload

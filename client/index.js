@@ -10,7 +10,7 @@ async function fetchRaces() {
                 const race = template.content.cloneNode(true).firstElementChild; // section tag
                 race.querySelector('h2').textContent = `Race ID: ${data[key]['race_id']}`;
                 racePreview.append(race);
-                race.addEventListener('click', goToRace);
+                race.addEventListener('click',() => {goToRace(data[key]['race_id'])});
             }
         }
         else {console.log(response.status)}
@@ -19,8 +19,8 @@ async function fetchRaces() {
     }
 }
 
-function goToRace() {
-    window.location.href = `/view-results.html`;
+function goToRace(raceID) {
+    window.location.href = `/${raceID}/view-race`;
 }
 
 fetchRaces();

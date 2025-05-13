@@ -17,7 +17,7 @@ async function createRaceID() {
         });
         const data = await response.json();
         console.log("Result uploaded successfully:", data);
-        window.location.href = `/${raceData[0]}/start-race`;
+        window.location.href = `/${raceData[0]}/view-race`;
     }
     catch (error) {
         console.log(error);

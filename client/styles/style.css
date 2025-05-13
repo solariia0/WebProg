@@ -30,8 +30,16 @@ nav {
     margin-right: 5em;
 }
 
-ol {
+#races{
     grid-area: race / span 3;
+    height: 70vh;
+    overflow-y: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none; 
+}
+
+#races::-webkit-scrollbar {
+  display: none;
 }
 
 ol > section {
@@ -77,4 +85,12 @@ input {
 
 #recordBttn {
     display: none;
+}
+
+#view_results {
+    display: none;
+}
+
+img {
+    height: 20vw;
 }

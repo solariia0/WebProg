@@ -14,32 +14,29 @@ async function init() {
 
 const dbConn = init();
 
+export async function finishRace(raceid) {
+  const db = await dbConn;
+  await db.run('UPDATE races SET finished = true WHERE race_id = ?', raceid)
+}
+
 export async function addRunner(data) {
   const db = await dbConn;
-  await db.run('INSERT INTO times (race_id, runner_id, time) VALUES (?, ?, ?)', [data['race_id'], data['runner_id'], data['time']]);
+  await db.run('INSERT INTO times (race_id, runner_id, time) VALUES (?, ?, ?, ?)', [data['position'], data['race_id'], data['runner_id'], data['time']]);
 }
 
-export async function updateRunner(data) {
-  const db = await dbConn;
-  await db.run('UPDATE times SET runner_id = ? WHERE upload_order = ?', [data['runner_id'], data['old_id']]);
-}
-
-export async function bulkAddResults(results) {
+export async function addAllRunners(results, raceid) {
     const db = await dbConn;
-  
-    const id = results['race_id'];
   
     for (const result of results) {
       const runnerID = result.id;
       const runnerTime = result.time;
-      console.log(id + ' ' +runnerID + ' ' + runnerTime);
-      await db.run('INSERT INTO times VALUES (?, ?, ?)', [id, runnerID, runnerTime]);
+      await db.run('INSERT INTO times (race_id, runner_id, time) VALUES (?, ?, ?)', [raceid, runnerID, runnerTime]);
     }
 }
 
 export async function createRace(data) {
   const db = await dbConn;
-  await db.run('INSERT INTO races VALUES (?, ?, ?, ?, ?, ?)', data);
+  await db.run('INSERT INTO races VALUES (?, ?, ?, ?, ?)', data);
 }
 
 export async function findRace(id) {

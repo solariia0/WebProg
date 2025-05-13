@@ -1,5 +1,6 @@
 const parts = window.location.pathname.split('/');
-const raceid = parts[1];
+const raceid = parts[2];
+
 
 const timer = document.querySelector('#stopwatch');
 const timerBttn = document.querySelector('#timerBttn');
@@ -9,6 +10,7 @@ const uploadBttn = document.querySelector('#uploadBttn');
 const uploadMssg = document.querySelector('#uploadMssg');
 const raceID = document.querySelector('#raceID');
 const confirmRaceID = document.querySelector('#confirm');
+const viewResultsBttn = document.querySelector('#view_results');
 
 
 let results = [];
@@ -27,12 +29,12 @@ function stopwatch() {
     let time = 0;
 
     if (timerBttn.textContent === 'start') {
-        timerBttn.textContent = 'stop'
+        timerBttn.textContent = 'stop';
         timerBttn.style.backgroundColor = 'rgb(232, 75, 99)';
         uploadMssg.style.display = 'none';
         const editBttn = document.querySelector('#edit_bttn');
         editBttn.style.display = 'none';
-        recordBttn.style.display = 'block';
+        recordBttn.style.display = 'inline';
         document.querySelector('.nav_bttn').style.display = 'none';
         localStorage.clear();
 
@@ -68,58 +70,21 @@ timerBttn.addEventListener('click', stopwatch);
 
 async function recordRunner() {
     if (intervalID != null) { // Only allows laps to be recorded if a timer is running
-        let entryOrder = 1; // counter to use in db for finding the order
-        const runner = document.createElement('li');
+        const runner = document.createElement('p');
         runner.id = 'runner';
         const runnerTime = document.createElement('p');
         const idEntryBox = document.createElement('input');
-        idEntryBox.addEventListener('change', () => {updateRunnerID(idEntryBox.value, entryOrder)});
 
-        runner.textContent = 'Racer ID:'
+        runner.textContent = 'Racer ID:';
         runnerTime.textContent = `Time: ${timer.textContent}`;
         runnerTime.style.display = 'inline';
         runnerList.append(runner);
         runner.append(idEntryBox, runnerTime);
-        entryOrder++;
-
-        try {
-            const response = await fetch(`/${raceid}/upload/runner`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: `{"race_id": "${raceid}", "runner_id": "${idEntryBox.value}", "time": "${timer.textContent}"}`
-            });
-            const data = await response.json();
-            console.log("Result uploaded successfully:", data); 
-            
-            runnerTime.style.color = 'blue';
-        } catch (error) {
-            console.error("Error uploading result:", error);
-            runnerTime.style.color = 'red';
-        }
+        
+        //results.push(`{"race_id": "${raceid}", "runner_id": "${idEntryBox.value}", "time": "${timer.textContent}"}`);
     }
 }
 recordBttn.addEventListener('click', recordRunner);
-
-async function updateRunnerID(newid, oldid) {
-    try {
-        const response = await fetch(`/${raceid}/update/runner`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: `{"runner_id": "${newid}", "old_id": "${oldid}"}`
-        });
-        const data = await response.json();
-        console.log("Result uploaded successfully:", data);
-        
-        runnerTime.style.color = 'blue';
-    } catch (error) {
-        console.error("Error uploading result:", error);
-        runnerTime.style.color = 'red';
-    }
-}
 
 // make it so it only uploads once per race
 // upload results that fail to upload to the server to localstorage to be uploaded later
@@ -132,15 +97,14 @@ async function uploadRace() {
         // uploading to localstorage
         localStorage.setItem(`${runnerIDs[i].value}`, `${runnerTimes[i].textContent.slice(6)}`);
 
-        output = `{"id": "${runnerIDs[i].value}"`;
-        output += `, "time": "${runnerTimes[i].textContent.slice(6)}"}`;
-        output = JSON.parse(output);
+        output = {"id": `${runnerIDs[i].value}`, "time": `${runnerTimes[i].textContent.slice(6)}`};
         results.push(output);
     }
 
-    try { // making it a json? I thibnk?
-        const response = await fetch('/results', {
-            method: 'PUT',
+    // uploading all times to the database
+    try {
+        const response = await fetch(`/results/${raceid}`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -153,6 +117,7 @@ async function uploadRace() {
         timerBttn.removeAttribute('disabled');
         uploadBttn.style.display = 'none';
         uploadMssg.style.display = 'inline';
+        viewResultsBttn.style.display = 'block';
 
         const resultsList = document.querySelectorAll('#runner');
         for (const item of resultsList) {
@@ -162,49 +127,18 @@ async function uploadRace() {
 
     } catch (error) {
         console.error("Error uploading result:", error);
-        alert("Error uploading result.");
     }
 
-    try { // drop all db contents and reupload?
-        // make finished = true
-        const response = await fetch('/:raceid/upload/race', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(results)
-        });
-        const data = await response.json();
-        console.log("Result uploaded successfully:", data);
-    } catch (error) {
-        console.error("Error uploading result:", error);
-    }
+    // updating the database values to mark the race as finished
+    await fetch(`/finished/${raceid}`);
 }
 uploadBttn.addEventListener('click', uploadRace);
 
-/////
+viewResultsBttn.addEventListener('click', () => {window.location.href = `/finished-results/${raceid}`;})
 
-async function loadRaceDetails() {
-    document.querySelector('#title').textContent = `Welcome to race ${raceid}!`; //change title?
 
-    try {
-        const response = await fetch(`/race/${raceid}`)
-        if (response.status == 200) {
-            const data = await response.json();
-            const allMarshalls = data['marshalls']
-            for (var i=1; i <= allMarshalls; i++) {
-                const marshall = document.createElement('button');
-                marshall.id = "checkpoint";
-                marshall.textContent = `record at checkpoint ${i}`;
-                document.querySelector('ol').append(marshall);
-                marshall.addEventListener('click', () =>
-                     {window.location.href = `/${raceid}/checkpoint-${i}`}
-                )
-            }
-        }
-    } catch (error) {
-        console.log(`error fetching race ${raceid} | error: ${error}`)
-    }
+function main() {
+    document.querySelector('h2').textContent = `Welcome to race ${raceid}!`;
 }
 
-loadRaceDetails();
+main();

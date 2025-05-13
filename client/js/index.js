@@ -20,7 +20,7 @@ async function fetchRaces() {
 }
 
 function goToRace(raceID) {
-    window.location.href = `/${raceID}/view-race`;
+    window.location.href = `/stopwatch/${raceID}`;
 }
 
 fetchRaces();
